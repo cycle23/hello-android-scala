@@ -4,6 +4,7 @@ import android.app.Activity
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.graphics.drawable.Animatable
+import com.google.vr.sdk.base.AndroidCompat
 
 class MainActivity extends AppCompatActivity {
     // allows accessing `.value` on TR.resource.constants

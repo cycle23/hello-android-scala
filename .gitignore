@@ -1,4 +1,7 @@
+.idea/
+gen/
 target/
 project/project
+project/target
 bin/
 local.properties
