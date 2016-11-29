@@ -24,6 +24,8 @@ javacOptions ++= Seq("-source", "1.7", "-target", "1.7")
 
 scalacOptions ++=Seq("-feature", "-Xexperimental" ,"-language:implicitConversions", "-language:postfixOps", "-target:jvm-1.7")
 
+proguardCache ++= Seq("org.scaloid")
+
 proguardOptions ++= Seq(
   "-keepnames class com.google.vr.ndk.** { *; }",
   "-keepnames class com.google.vr.sdk.** { *; }",

@@ -1,70 +1,53 @@
 package io.github.cycle23.scala_controllerclient
 
-import android.app.Activity
-import android.os.Bundle
 import android.os.Handler
-import android.view.View
 import android.widget.TextView
 import com.google.vr.sdk.base.AndroidCompat
 import com.google.vr.sdk.controller.Controller
 import com.google.vr.sdk.controller.Controller.ConnectionStates
 import com.google.vr.sdk.controller.ControllerManager
 import com.google.vr.sdk.controller.ControllerManager.ApiStatus
+import org.scaloid.common.SActivity
 
 /**
   * Created by cody on 11/24/16.
   */
-class MainActivity extends Activity with FindView {
+class MainActivity extends SActivity {
+  lazy val apiStatusView = find[TextView](R.id.api_status_view)
+
   val TAG = "ControllerClientActivity"
 
-  var apiStatusView: TextView = _
-  var controller: Controller = _
+  lazy val controllerStateView = find[TextView](R.id.controller_state_view)
+  lazy val controllerOrientationText = find[TextView](R.id.controller_orientation_text)
+  lazy val controllerTouchpadView = find[TextView](R.id.controller_touchpad_view)
+  lazy val controllerButtonView = find[TextView](R.id.controller_button_view)
 
-  var controllerStateView: TextView = _
-  var controllerOrientationText: TextView = _
-  var controllerTouchpadView: TextView = _
-  var controllerButtonView: TextView = _
-  var controllerOrientationView: OrientationView = _
+  lazy val controllerOrientationView = find[OrientationView](R.id.controller_orientation_view)
 
   val uiHandler = new Handler()
 
-  var controllerManager: ControllerManager = _
+  val listener = EventListener()
+  val controllerManager = new ControllerManager(this, listener)
+  val controller = controllerManager.getController
+  controller.setEventListener(listener)
 
-  override def onCreate(savedInstanceState: Bundle) {
-    super.onCreate(savedInstanceState)
+  onCreate {
     setContentView(R.layout.main_layout)
 
-    apiStatusView = findView[TextView](R.id.api_status_view)
-
-    controllerStateView = findView[TextView](R.id.controller_state_view)
-    controllerTouchpadView = findView[TextView](R.id.controller_touchpad_view)
-    controllerButtonView = findView[TextView](R.id.controller_button_view)
-    controllerOrientationText = findView[TextView](R.id.controller_orientation_text)
-    controllerTouchpadView = findView[TextView](R.id.controller_touchpad_view)
-    controllerButtonView = findView[TextView](R.id.controller_button_view)
-
-    val listener = EventListener()
-    controllerManager = new ControllerManager(this, listener)
     apiStatusView.setText("Binding to VR Service")
-    controller = controllerManager.getController
-    controller.setEventListener(listener)
-
-    controllerOrientationView = findView[OrientationView](R.id.controller_orientation_view)
     controllerOrientationView.setController(controller)
 
     AndroidCompat.setVrModeEnabled(this, true)
   }
 
-  override def onStart(): Unit = {
-    super.onStart()
+  onStart {
     controllerManager.start()
     controllerOrientationView.startTrackingOrientation()
   }
 
-  override def onStop(): Unit = {
+  onStop {
     controllerManager.stop()
     controllerOrientationView.stopTrackingOrientation()
-    super.onStop()
   }
 
   class EventListener extends Controller.EventListener
@@ -99,7 +82,7 @@ class MainActivity extends Activity with FindView {
         controllerTouchpadView.setText(s"[COCO - ${controller.touch.x%4.2f}, ${controller.touch.y%4.2f}]")
       }
       else {
-        controllerTouchpadView.setText("[ NO TOUCH COCO ]")
+        controllerTouchpadView.setText("[ NO TOUCH COCO2 ]")
       }
       controllerButtonView.setText(
         s"[${if (controller.appButtonState) "A" else " "}]" +
