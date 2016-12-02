@@ -1,32 +1,26 @@
 package io.github.cycle23.scala_controllerclient
 
-import android.os.Handler
-import android.widget.TextView
 import com.google.vr.sdk.base.AndroidCompat
 import com.google.vr.sdk.controller.Controller
 import com.google.vr.sdk.controller.Controller.ConnectionStates
 import com.google.vr.sdk.controller.ControllerManager
 import com.google.vr.sdk.controller.ControllerManager.ApiStatus
-import org.scaloid.common.SActivity
+import org.scaloid.common._
 
 /**
   * Created by cody on 11/24/16.
   */
-class MainActivity extends SActivity {
-  lazy val apiStatusView = find[TextView](R.id.api_status_view)
 
-  val TAG = "ControllerClientActivity"
+class MainActivity extends SActivity with TypedFindView {
+  lazy val apiStatusView = findView(TR.api_status_view)
+  lazy val controllerStateView = findView(TR.controller_state_view)
+  lazy val controllerOrientationText = findView(TR.controller_orientation_text)
+  lazy val controllerTouchpadView = findView(TR.controller_touchpad_view)
+  lazy val controllerButtonView = findView(TR.controller_button_view)
 
-  lazy val controllerStateView = find[TextView](R.id.controller_state_view)
-  lazy val controllerOrientationText = find[TextView](R.id.controller_orientation_text)
-  lazy val controllerTouchpadView = find[TextView](R.id.controller_touchpad_view)
-  lazy val controllerButtonView = find[TextView](R.id.controller_button_view)
+  lazy val controllerOrientationView = findView(TR.controller_orientation_view)
 
-  lazy val controllerOrientationView = find[OrientationView](R.id.controller_orientation_view)
-
-  val uiHandler = new Handler()
-
-  val listener = EventListener()
+  private val listener = EventListener()
   val controllerManager = new ControllerManager(this, listener)
   val controller = controllerManager.getController
   controller.setEventListener(listener)
@@ -46,11 +40,11 @@ class MainActivity extends SActivity {
   }
 
   onStop {
-    controllerManager.stop()
     controllerOrientationView.stopTrackingOrientation()
+    controllerManager.stop()
   }
 
-  class EventListener extends Controller.EventListener
+  private class EventListener extends Controller.EventListener
     with ControllerManager.EventListener with Runnable {
 
     var apiStatus = ApiStatus.toString(ApiStatus.OK)
@@ -58,19 +52,20 @@ class MainActivity extends SActivity {
 
     override def onApiStatusChanged(state: Int): Unit = {
       apiStatus = ApiStatus.toString(state)
-      uiHandler.post(this)
+      handler.post(this)
     }
 
     override def onConnectionStateChanged(state: Int): Unit = {
       controllerState = state
-      uiHandler.post(this)
+      handler.post(this)
     }
 
     override def onRecentered(): Unit = {
       controllerOrientationView.resetYaw()
     }
 
-    override def onUpdate(): Unit = { uiHandler.post(this) }
+    override def onUpdate(): Unit = { handler.post(this) }
+
     override def run(): Unit = {
       apiStatusView.setText(apiStatus)
       controllerStateView.setText(ConnectionStates.toString(controllerState))
@@ -94,7 +89,7 @@ class MainActivity extends SActivity {
     }
   }
 
-  object EventListener {
+  private object EventListener {
     def apply() = new EventListener()
   }
 }
