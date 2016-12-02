@@ -21,7 +21,7 @@ class MainActivity extends SActivity with TypedFindView {
   lazy val controllerOrientationView = findView(TR.controller_orientation_view)
 
   private val listener = EventListener()
-  val controllerManager = new ControllerManager(this, listener)
+  val controllerManager = new ControllerManager(ctx, listener)
   val controller = controllerManager.getController
   controller.setEventListener(listener)
 
@@ -31,7 +31,7 @@ class MainActivity extends SActivity with TypedFindView {
     apiStatusView.setText("Binding to VR Service")
     controllerOrientationView.setController(controller)
 
-    AndroidCompat.setVrModeEnabled(this, true)
+    AndroidCompat.setVrModeEnabled(ctx, true)
   }
 
   onStart {
@@ -47,8 +47,8 @@ class MainActivity extends SActivity with TypedFindView {
   private class EventListener extends Controller.EventListener
     with ControllerManager.EventListener with Runnable {
 
-    var apiStatus = ApiStatus.toString(ApiStatus.OK)
-    var controllerState = ConnectionStates.DISCONNECTED
+    private var apiStatus = ApiStatus.toString(ApiStatus.OK)
+    private var controllerState = ConnectionStates.DISCONNECTED
 
     override def onApiStatusChanged(state: Int): Unit = {
       apiStatus = ApiStatus.toString(state)
